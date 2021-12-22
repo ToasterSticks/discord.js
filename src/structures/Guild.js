@@ -36,6 +36,7 @@ const Util = require('../util/Util');
 
 let deprecationEmittedForSetChannelPositions = false;
 let deprecationEmittedForSetRolePositions = false;
+let deprecationEmittedForDeleted = false;
 
 /**
  * @type {WeakSet<Guild>}
@@ -130,12 +131,29 @@ class Guild extends AnonymousGuild {
   /**
    * Whether or not the structure has been deleted
    * @type {boolean}
+   * @deprecated This will be removed in the next major version, see https://github.com/discordjs/discord.js/issues/7091
    */
   get deleted() {
+    if (!deprecationEmittedForDeleted) {
+      deprecationEmittedForDeleted = true;
+      process.emitWarning(
+        'Guild#deleted is deprecated, see https://github.com/discordjs/discord.js/issues/7091.',
+        'DeprecationWarning',
+      );
+    }
+
     return deletedGuilds.has(this);
   }
 
   set deleted(value) {
+    if (!deprecationEmittedForDeleted) {
+      deprecationEmittedForDeleted = true;
+      process.emitWarning(
+        'Guild#deleted is deprecated, see https://github.com/discordjs/discord.js/issues/7091.',
+        'DeprecationWarning',
+      );
+    }
+
     if (value) deletedGuilds.add(this);
     else deletedGuilds.delete(this);
   }
@@ -480,30 +498,12 @@ class Guild extends AnonymousGuild {
   }
 
   /**
-   * The URL to this guild's banner.
-   * @param {StaticImageURLOptions} [options={}] Options for the Image URL
-   * @returns {?string}
-   */
-  bannerURL({ format, size } = {}) {
-    return this.banner && this.client.rest.cdn.Banner(this.id, this.banner, format, size);
-  }
-
-  /**
    * The time the client user joined the guild
    * @type {Date}
    * @readonly
    */
   get joinedAt() {
     return new Date(this.joinedTimestamp);
-  }
-
-  /**
-   * The URL to this guild's invite splash image.
-   * @param {StaticImageURLOptions} [options={}] Options for the Image URL
-   * @returns {?string}
-   */
-  splashURL({ format, size } = {}) {
-    return this.splash && this.client.rest.cdn.Splash(this.id, this.splash, format, size);
   }
 
   /**

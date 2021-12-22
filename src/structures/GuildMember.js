@@ -13,6 +13,7 @@ const Permissions = require('../util/Permissions');
  * @internal
  */
 const deletedGuildMembers = new WeakSet();
+let deprecationEmittedForDeleted = false;
 
 /**
  * Represents a member of a guild on Discord.
@@ -104,12 +105,29 @@ class GuildMember extends Base {
   /**
    * Whether or not the structure has been deleted
    * @type {boolean}
+   * @deprecated This will be removed in the next major version, see https://github.com/discordjs/discord.js/issues/7091
    */
   get deleted() {
+    if (!deprecationEmittedForDeleted) {
+      deprecationEmittedForDeleted = true;
+      process.emitWarning(
+        'GuildMember#deleted is deprecated, see https://github.com/discordjs/discord.js/issues/7091.',
+        'DeprecationWarning',
+      );
+    }
+
     return deletedGuildMembers.has(this);
   }
 
   set deleted(value) {
+    if (!deprecationEmittedForDeleted) {
+      deprecationEmittedForDeleted = true;
+      process.emitWarning(
+        'GuildMember#deleted is deprecated, see https://github.com/discordjs/discord.js/issues/7091.',
+        'DeprecationWarning',
+      );
+    }
+
     if (value) deletedGuildMembers.add(this);
     else deletedGuildMembers.delete(this);
   }
@@ -318,10 +336,11 @@ class GuildMember extends Base {
 
   /**
    * Creates a DM channel between the client and this member.
+   * @param {boolean} [force=false] Whether to skip the cache check and request the API
    * @returns {Promise<DMChannel>}
    */
-  createDM() {
-    return this.user.createDM();
+  createDM(force = false) {
+    return this.user.createDM(force);
   }
 
   /**
